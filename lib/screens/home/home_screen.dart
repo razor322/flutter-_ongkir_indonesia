@@ -23,7 +23,7 @@ class HomeScreen extends GetView<HomeController> {
         child: Column(
           children: [
             const Text(
-              "Kota Tujuan",
+              "Kota Asal",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(
@@ -56,7 +56,15 @@ class HomeScreen extends GetView<HomeController> {
             const SizedBox(
               height: 20,
             ),
-            BuildInputBerat(),
+            const BuildInputBerat(),
+            const SizedBox(
+              height: 20,
+            ),
+            _dropdownCourier(),
+            const SizedBox(
+              height: 20,
+            ),
+            Obx(() => c.isHiddenBtn.isTrue ? const SizedBox() : _buildButton())
           ],
         ),
       ),
@@ -65,6 +73,7 @@ class HomeScreen extends GetView<HomeController> {
 
   Widget _dropdownProvinsi(String tipe) {
     return DropdownSearch<Results>(
+      popupProps: const PopupProps.menu(showSearchBox: true),
       asyncItems: (String filter) async {
         try {
           var url = "https://api.rajaongkir.com/starter/province";
@@ -105,7 +114,16 @@ class HomeScreen extends GetView<HomeController> {
             controller.isHiddenTujuan.value = false;
             controller.provIdTujuan.value = int.parse(data.provinceId);
           }
+        } else {
+          if (tipe == "Provinsi Asal") {
+            controller.isHiddenAsal.value = true;
+            controller.provIdAsal.value = 0;
+          } else {
+            controller.isHiddenTujuan.value = true;
+            controller.provIdTujuan.value = 0;
+          }
         }
+        controller.showBtn();
       },
       clearButtonProps:
           const ClearButtonProps(icon: Icon(Icons.clear), isVisible: true),
@@ -114,6 +132,7 @@ class HomeScreen extends GetView<HomeController> {
 
   Widget _dropdownKota(int prov, String tipe) {
     return DropdownSearch<Data>(
+      popupProps: const PopupProps.menu(showSearchBox: true),
       asyncItems: (String filter) async {
         try {
           var url = "https://api.rajaongkir.com/starter/city?province=$prov";
@@ -153,10 +172,61 @@ class HomeScreen extends GetView<HomeController> {
           } else {
             controller.kotaIdTujuan.value = int.parse(data.cityId);
           }
+        } else {
+          if (tipe == "Asal") {
+            controller.kotaIdAsal.value = 0;
+          } else {
+            controller.kotaIdTujuan.value = 0;
+          }
         }
+        controller.showBtn();
       },
       clearButtonProps:
           const ClearButtonProps(icon: Icon(Icons.clear), isVisible: true),
     );
+  }
+
+  Widget _dropdownCourier() {
+    return DropdownSearch<String>(
+      popupProps: const PopupProps.bottomSheet(
+        fit: FlexFit.loose,
+      ),
+      items: const ["jne", "tiki", "pos"],
+      dropdownDecoratorProps: const DropDownDecoratorProps(
+        dropdownSearchDecoration: InputDecoration(
+          prefixIcon: Icon(Icons.backpack),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15))),
+          labelText: "Pilihan Courier",
+        ),
+      ),
+      clearButtonProps:
+          const ClearButtonProps(icon: Icon(Icons.clear), isVisible: true),
+      onChanged: (value) {
+        if (value != null) {
+          controller.kurir.value = value;
+          controller.showBtn();
+          print(value);
+        } else {
+          controller.isHiddenBtn.value = true;
+          controller.kurir.value = "";
+        }
+      },
+    );
+  }
+
+  Widget _buildButton() {
+    return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue,
+          padding: const EdgeInsets.all(15),
+        ),
+        onPressed: () {
+          controller.ongkosKirim();
+        },
+        child: const Text(
+          "CEK ONGKOS KIRIM",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+        ));
   }
 }
