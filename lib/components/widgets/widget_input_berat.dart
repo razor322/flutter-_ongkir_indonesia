@@ -34,8 +34,12 @@ class BuildInputBerat extends GetView<HomeController> {
         SizedBox(
           width: 150,
           child: DropdownSearch<String>(
-            popupProps: const PopupProps.bottomSheet(
+            popupProps: PopupProps.bottomSheet(
+              showSearchBox: true,
               showSelectedItems: true,
+              loadingBuilder: (context, searchEntry) {
+                return const Center(child: CircularProgressIndicator());
+              },
             ),
             items: const [
               "ton",
@@ -55,8 +59,7 @@ class BuildInputBerat extends GetView<HomeController> {
               dropdownSearchDecoration: InputDecoration(
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(15))),
-                labelText: "Satuan Berats",
-                hintText: "country in menu mode",
+                labelText: "Satuan Berat",
               ),
             ),
             onChanged: (value) {
